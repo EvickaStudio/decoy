@@ -1,6 +1,12 @@
 #include <windows.h>
 
-// Example version info for Decoy.exe
+/*
+ * @file manager.rc
+ * @brief Resource script for the decoy manager (main application).
+ *
+ * This provides version information and metadata to the decoy-manager executable.
+ */
+
 1 VERSIONINFO
  FILEVERSION 1,0,0,0
  PRODUCTVERSION 1,0,0,0

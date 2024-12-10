@@ -1,5 +1,12 @@
 #include <windows.h>
 
+/*
+ * @file dummy.rc
+ * @brief Resource script for the dummy process.
+ *
+ * This provides version information to the dummy executable.
+ */
+
 1 VERSIONINFO
 FILEVERSION 1,0,0,0
 PRODUCTVERSION 1,0,0,0
