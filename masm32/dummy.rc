@@ -1,0 +1,52 @@
+/* ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
+
+    basic resource script file
+    comments are either in C or C++ notation
+
+    This resource file attaches version and product information to the executable.
+    Adjust the fields below to describe your application.
+
+¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ */
+
+#define MANIFEST 24
+
+#include "\masm32\include\resource.h"
+
+/*
+  VS_VERSION_INFO VERSIONINFO is a standard structure used to embed version 
+  and other metadata into the executable. The fields FILEVERSION and 
+  PRODUCTVERSION set the numeric version numbers, while FILEOS, FILETYPE 
+  and FILESUBTYPE describe the target OS and type of executable.
+
+  "StringFileInfo" and "VarFileInfo" blocks define textual metadata, 
+  such as company name, product name, and file description.
+*/
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,0       // Major, Minor, Patch, Build
+ PRODUCTVERSION 1,0,0,0     // Product version (can match FILEVERSION)
+ FILEOS 0                    // 0 or a constant like VOS__WINDOWS32 if defined
+ FILETYPE 0                  // 0 or a constant like VFT_APP if defined
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904B0"
+    BEGIN
+      VALUE "CompanyName",      "EvickaStudio\000"
+      VALUE "FileDescription",  "Fake Analysis Suite\000"
+      VALUE "FileVersion",      "1.0.0.0\000"
+      VALUE "InternalName",     "dummy\000"
+      VALUE "OriginalFilename", "dummy.exe\000"
+      VALUE "LegalCopyright",   "\251 2024 EvickaStudio\000"
+      VALUE "ProductName",      "Fake Analysis Suite - Dummy\000"
+      VALUE "ProductVersion",   "1.0.0.0\000"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    // Language and codepage setting: 0x0409 is U.S. English, 0x04B0 is Unicode code page
+    VALUE "Translation", 0x409, 0x4B0
+  END
+END
+
+// ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
