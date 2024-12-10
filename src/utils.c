@@ -69,7 +69,7 @@ void killProcessByName(const char *pname)
 
     do
     {
-        if (_stricmp(pe.szExeFile, pname) == 0)
+        if (_strnicmp(pe.szExeFile, pname, MAX_PATH) == 0)
         {
             HANDLE hProc = OpenProcess(PROCESS_TERMINATE, FALSE, pe.th32ProcessID);
             if (hProc)
