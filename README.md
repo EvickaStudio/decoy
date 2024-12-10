@@ -47,7 +47,7 @@ Run `decoy-manager` without arguments to open the interactive menu:
 **Non-Interactive Modes:**
 
 - `-S` or `-s`: Start all processes and then exit
-- `-T` or `-t`: Terminate all running processes and then exit
+- `-T` or `-t`: Terminate all running processes and then exit (when closing the program not properly)
 - `-Q` or `-q`: Quiet mode, no terminal output; just start all processes and exit
 
 These command-line options are particularly useful if you want to integrate Decoy into scripts or automation workflows without user interaction.
