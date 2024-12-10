@@ -51,3 +51,7 @@ Run `decoy-manager` without arguments to open the interactive menu:
 - `-Q` or `-q`: Quiet mode, no terminal output; just start all processes and exit
 
 These command-line options are particularly useful if you want to integrate Decoy into scripts or automation workflows without user interaction.
+
+## Disclaimer
+
+**Note:** Some legitimate programs or games (e.g., Battlefield 2042 with procmon.exe) may use anti-cheat mechanisms that detect and blacklist certain processes. Running Decoy might cause these applications to refuse to start or function improperly until specific processes are stopped. Use Decoy with caution to ensure it does not interfere with your legitimate software.
