@@ -1,6 +1,6 @@
 #include <windows.h>
 
-// Example version info for scarecrow.exe
+// Example version info for Decoy.exe
 1 VERSIONINFO
  FILEVERSION 1,0,0,0
  PRODUCTVERSION 1,0,0,0
@@ -20,10 +20,10 @@ BEGIN
         BLOCK "040904B0"
         BEGIN
             VALUE "CompanyName", "EvickaStudio\0"
-            VALUE "FileDescription", "Scarecrow Manager\0"
+            VALUE "FileDescription", "Decoy Manager\0"
             VALUE "FileVersion", "1.0.0.0\0"
-            VALUE "InternalName", "scarecrow\0"
-            VALUE "OriginalFilename", "scarecrow.exe\0"
+            VALUE "InternalName", "Decoy\0"
+            VALUE "OriginalFilename", "decoy-manager.exe\0"
             VALUE "ProductName", "Fake Analysis Suite\0"
             VALUE "ProductVersion", "1.0.0.0\0"
         END
