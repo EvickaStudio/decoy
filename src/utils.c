@@ -69,15 +69,27 @@ void killProcessByName(const char *pname)
 
     do
     {
-        if (_strnicmp(pe.szExeFile, pname, MAX_PATH) == 0)
+        // Example of bounds checking for strings
+        if (strlen(pname) < MAX_PATH)
         {
-            HANDLE hProc = OpenProcess(PROCESS_TERMINATE, FALSE, pe.th32ProcessID);
-            if (hProc)
+            // Safe usage of pname
+            if (_strnicmp(pe.szExeFile, pname, MAX_PATH) == 0)
             {
-                TerminateProcess(hProc, 0);
-                WaitForSingleObject(hProc, 2000);
-                CloseHandle(hProc);
-                qprintf("[+] Terminated %s (PID: %lu)\n", pname, pe.th32ProcessID);
+                HANDLE hProc = OpenProcess(PROCESS_TERMINATE, FALSE, pe.th32ProcessID);
+                if (hProc)
+                {
+                    if (!TerminateProcess(hProc, 0))
+                    {
+                        qprintf("[-] Failed to terminate %s (PID: %lu). Error: %lu\n", pname, pe.th32ProcessID, GetLastError());
+                    }
+                    WaitForSingleObject(hProc, 2000);
+                    CloseHandle(hProc);
+                    qprintf("[+] %s (PID: %lu) has been terminated\n", pname, pe.th32ProcessID);
+                }
+                else
+                {
+                    qprintf("[-] Cannot open process %s (PID: %lu). Error: %lu\n", pname, pe.th32ProcessID, GetLastError());
+                }
             }
         }
     } while (Process32Next(hSnapshot, &pe));
