@@ -1,30 +1,3 @@
-REM @echo off
-
-    REM if exist "dummy.obj" del "dummy.obj"
-    REM if exist "dummy.exe" del "dummy.exe"
-
-    REM \masm32\bin\ml /c /coff "dummy.asm"
-    REM if errorlevel 1 goto errasm
-
-    REM \masm32\bin\PoLink /SUBSYSTEM:CONSOLE "dummy.obj"
-    REM if errorlevel 1 goto errlink
-    REM dir "dummy.*"
-    REM goto TheEnd
-
-  REM :errlink
-    REM echo _
-    REM echo Link error
-    REM goto TheEnd
-
-  REM :errasm
-    REM echo _
-    REM echo Assembly Error
-    REM goto TheEnd
-    
-  REM :TheEnd
-
-REM pause
-
 @echo off
 
 if exist "dummy.obj" del "dummy.obj"
