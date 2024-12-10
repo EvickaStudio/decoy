@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <io.h>
+#include <tlhelp32.h>
 
-// List of common analysis/debugging tool names
 static const char *processNames[] = {
     "autoruns.exe",
     "autorunsc.exe",
@@ -71,7 +71,6 @@ static const char *processNames[] = {
     "WPA.exe"
 };
 
-// Number of process names
 static const int processCount = (int)(sizeof(processNames) / sizeof(processNames[0]));
 
 typedef struct {
@@ -79,9 +78,7 @@ typedef struct {
     BOOL running;
 } FakeProcess;
 
-static FakeProcess processes[63];
-
-// Global flag for quiet mode
+static FakeProcess processes[64];
 static BOOL quietMode = FALSE;
 
 static void qprintf(const char *fmt, ...) {
@@ -90,6 +87,7 @@ static void qprintf(const char *fmt, ...) {
         va_start(args, fmt);
         vprintf(fmt, args);
         va_end(args);
+        fflush(stdout);
     }
 }
 
@@ -97,23 +95,47 @@ static BOOL fileExists(const char *filename) {
     return (_access(filename, 0) == 0);
 }
 
+static void killProcessByName(const char *pname) {
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (hSnapshot == INVALID_HANDLE_VALUE) return;
+
+    PROCESSENTRY32 pe;
+    pe.dwSize = sizeof(pe);
+
+    if (Process32First(hSnapshot, &pe)) {
+        do {
+            if (_stricmp(pe.szExeFile, pname) == 0) {
+                HANDLE hProc = OpenProcess(PROCESS_TERMINATE, FALSE, pe.th32ProcessID);
+                if (hProc) {
+                    TerminateProcess(hProc, 0);
+                    WaitForSingleObject(hProc, 2000);
+                    CloseHandle(hProc);
+                    qprintf("[+] Terminated %s (PID: %lu)\n", pname, pe.th32ProcessID);
+                }
+            }
+        } while (Process32Next(hSnapshot, &pe));
+    }
+
+    CloseHandle(hSnapshot);
+}
+
 static void ensureProcessesDirectoryAndCopies(void) {
-    // Check if dummy.exe exists
     if (!fileExists("dummy.exe")) {
         qprintf("[-] dummy.exe not found. Please ensure it is in the same directory.\n");
         return;
     }
 
-    // Create "processes" directory if it doesn't exist
     CreateDirectoryA("processes", NULL);
 
-    // Copy dummy.exe to each filename
     for (int i = 0; i < processCount; i++) {
         char destPath[MAX_PATH];
         snprintf(destPath, MAX_PATH, "processes\\%s", processNames[i]);
-        if (!CopyFileA("dummy.exe", destPath, FALSE)) {
-            const DWORD err = GetLastError();
-            qprintf("[-] Failed to copy dummy.exe to %s. Error: %lu\n", destPath, err);
+
+        if (!fileExists(destPath)) {
+            if (!CopyFileA("dummy.exe", destPath, FALSE)) {
+                DWORD err = GetLastError();
+                qprintf("[-] Failed to copy dummy.exe to %s. Error: %lu\n", destPath, err);
+            }
         }
     }
 }
@@ -129,32 +151,45 @@ static void startAllProcesses(void) {
             char path[MAX_PATH];
             snprintf(path, MAX_PATH, "processes\\%s", processNames[i]);
 
-            if (CreateProcessA(path, NULL, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &processes[i].pi)) {
-                processes[i].running = TRUE;
-                qprintf("[+] Started %s (PID: %lu)\n", processNames[i], processes[i].pi.dwProcessId);
+            if (fileExists(path)) {
+                if (CreateProcessA(path, NULL, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &processes[i].pi)) {
+                    processes[i].running = TRUE;
+                    qprintf("[+] Started %s (PID: %lu)\n", processNames[i], processes[i].pi.dwProcessId);
+                } else {
+                    qprintf("[-] Failed to start %s. Error: %lu\n", processNames[i], GetLastError());
+                }
             } else {
-                qprintf("[-] Failed to start %s. Error: %lu\n", processNames[i], GetLastError());
+                qprintf("[-] %s not found in processes directory.\n", processNames[i]);
             }
         } else {
             qprintf("[!] %s already running.\n", processNames[i]);
         }
     }
+    fflush(stdout);
 }
 
 static void terminateAllProcesses(void) {
     for (int i = 0; i < processCount; i++) {
         if (processes[i].running) {
             TerminateProcess(processes[i].pi.hProcess, 0);
+            WaitForSingleObject(processes[i].pi.hProcess, 2000);
             CloseHandle(processes[i].pi.hProcess);
             CloseHandle(processes[i].pi.hThread);
             processes[i].running = FALSE;
             qprintf("[+] Terminated %s\n", processNames[i]);
         }
     }
+
+    for (int i = 0; i < processCount; i++) {
+        killProcessByName(processNames[i]);
+    }
+
+    fflush(stdout);
 }
 
 static void restartAllProcesses(void) {
     terminateAllProcesses();
+    ensureProcessesDirectoryAndCopies();
     startAllProcesses();
 }
 
@@ -166,7 +201,7 @@ static void printBanner(void) {
     qprintf("\\_,_/\\__/\\__/\\___/\\_, / ");
     qprintf("\x1b[0m");
     qprintf("v0.1.0\n");
-    printf("\x1b[35m");
+    qprintf("\x1b[35m");
     qprintf("                 /___/  \n");
     qprintf("\x1b[0m\n");
     qprintf("Welcome to the Decoy Manager!\n");
@@ -175,6 +210,7 @@ static void printBanner(void) {
     qprintf("as known analysis/debugger tool names.\n");
     qprintf("Use it to deter simple malware checks.\n\n");
     qprintf("Each process uses minimal resources.\n\n");
+    fflush(stdout);
 }
 
 static void printMenu(void) {
@@ -185,18 +221,14 @@ static void printMenu(void) {
     qprintf("[Q] Quit\n");
     qprintf("--------------------------------\n");
     qprintf("Enter a command: ");
+    fflush(stdout);
 }
 
 int main(int argc, char *argv[]) {
-    // Default all processes to not running
     for (int i = 0; i < processCount; i++) {
         processes[i].running = FALSE;
     }
 
-    // Check command-line arguments
-    // -S/-s: Start all and exit
-    // -T/-t: Terminate all and exit
-    // -Q/-q: Quiet mode; start all and exit with no output
     BOOL startImmediate = FALSE;
     BOOL terminateImmediate = FALSE;
 
@@ -207,28 +239,24 @@ int main(int argc, char *argv[]) {
             terminateImmediate = TRUE;
         } else if ((strcmp(argv[i], "-Q") == 0) || (strcmp(argv[i], "-q") == 0)) {
             quietMode = TRUE;
-            startImmediate = TRUE; // Quiet mode implies starting all and exit
+            startImmediate = TRUE;
         }
     }
 
-    // Ensure copies exist before user starts them
-    ensureProcessesDirectoryAndCopies();
-
-    // If quiet mode and startImmediate, just start and exit
-    if (quietMode && startImmediate) {
+    if (quietMode && startImmediate && !terminateImmediate) {
+        ensureProcessesDirectoryAndCopies();
         startAllProcesses();
         return 0;
     }
 
-    // If just startImmediate was requested (without quiet), start all and exit
     if (startImmediate && !terminateImmediate) {
         printBanner();
         qprintf("[*] Starting all processes as requested by command-line argument.\n");
+        ensureProcessesDirectoryAndCopies();
         startAllProcesses();
         return 0;
     }
 
-    // If terminateImmediate requested
     if (terminateImmediate) {
         printBanner();
         qprintf("[*] Terminating all processes as requested by command-line argument.\n");
@@ -236,7 +264,7 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    // Attempt to enable ANSI escape sequences on Windows 10+
+    // Enable ANSI if possible
     {
         HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
         if (hOut != INVALID_HANDLE_VALUE) {
@@ -254,10 +282,12 @@ int main(int argc, char *argv[]) {
 
     char choice;
     BOOL running = TRUE;
+
     while (running && scanf(" %c", &choice) == 1) {
         switch (choice) {
         case 'S':
         case 's':
+            ensureProcessesDirectoryAndCopies();
             startAllProcesses();
             break;
         case 'T':
@@ -280,7 +310,7 @@ int main(int argc, char *argv[]) {
 
         if (running) {
             qprintf("\n--------------------------------\n");
-            qprintf("Enter next command (S/T/R/Q): ");
+            printMenu();
         }
     }
 
