@@ -2,6 +2,10 @@
 build
 .idea
 
+# MASM32
+*.RES
+*.obj
+*.exe
 
 # Prerequisites
 *.d

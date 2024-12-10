@@ -25,7 +25,7 @@ BEGIN
         BLOCK "040904B0"
         BEGIN
             VALUE "CompanyName", "EvickaStudio\0"
-            VALUE "FileDescription", "Fake Analysis/Debugging Tool\0"
+            VALUE "FileDescription", "Fake Analysis Suite\0"
             VALUE "FileVersion", "1.0.0.0\0"
             VALUE "InternalName", "dummy\0"
             VALUE "OriginalFilename", "dummy.exe\0"
