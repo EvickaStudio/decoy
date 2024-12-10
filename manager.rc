@@ -1,0 +1,36 @@
+#include <windows.h>
+
+// Example version info for scarecrow.exe
+1 VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS VS_FF_DEBUG
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS VOS__WINDOWS32
+ FILETYPE VFT_APP
+ FILESUBTYPE VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        // "040904B0" means US English, Unicode code page
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "EvickaStudio\0"
+            VALUE "FileDescription", "Scarecrow Manager\0"
+            VALUE "FileVersion", "1.0.0.0\0"
+            VALUE "InternalName", "scarecrow\0"
+            VALUE "OriginalFilename", "scarecrow.exe\0"
+            VALUE "ProductName", "Fake Analysis Suite\0"
+            VALUE "ProductVersion", "1.0.0.0\0"
+        END
+    END
+
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1200
+    END
+END
