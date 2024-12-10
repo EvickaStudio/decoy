@@ -34,6 +34,8 @@ cmake .. -DCMAKE_BUILD_TYPE=Release
 cmake --build . --config Release
 ```
 
+Or download the pre-built binaries from the [v0.1.0 Release](https://github.com/YourUsername/YourRepoName/releases/tag/v0.1.0) page.
+
 ## Usage
 
 **Interactive Mode:**  
