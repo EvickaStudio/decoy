@@ -22,20 +22,26 @@
  */
 void parseArguments(int argc, char *argv[], BOOL *startImmediate, BOOL *terminateImmediate)
 {
-    for (int i = 1; i < argc; i++)
+    if (argc > 1)
     {
-        if ((strcmp(argv[i], "-S") == 0) || (strcmp(argv[i], "-s") == 0))
+        for (int i = 1; i < argc; i++)
         {
-            *startImmediate = TRUE;
-        }
-        else if ((strcmp(argv[i], "-T") == 0) || (strcmp(argv[i], "-t") == 0))
-        {
-            *terminateImmediate = TRUE;
-        }
-        else if ((strcmp(argv[i], "-Q") == 0) || (strcmp(argv[i], "-q") == 0))
-        {
-            setQuietMode(TRUE);
-            *startImmediate = TRUE;
+            if (argv[i] != NULL && strlen(argv[i]) > 0)
+            {
+                if ((strcmp(argv[i], "-S") == 0) || (strcmp(argv[i], "-s") == 0))
+                {
+                    *startImmediate = TRUE;
+                }
+                else if ((strcmp(argv[i], "-T") == 0) || (strcmp(argv[i], "-t") == 0))
+                {
+                    *terminateImmediate = TRUE;
+                }
+                else if ((strcmp(argv[i], "-Q") == 0) || (strcmp(argv[i], "-q") == 0))
+                {
+                    setQuietMode(TRUE);
+                    *startImmediate = TRUE;
+                }
+            }
         }
     }
 }
@@ -52,7 +58,10 @@ void enableAnsiIfPossible(void)
         if (GetConsoleMode(hOut, &dwMode))
         {
             dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-            SetConsoleMode(hOut, dwMode);
+            if (!SetConsoleMode(hOut, dwMode))
+            {
+                qprintf("[-] Failed to enable ANSI support. Error: %lu\n", GetLastError());
+            }
         }
     }
 }

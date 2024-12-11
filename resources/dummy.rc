@@ -7,18 +7,18 @@
  * This provides version information to the dummy executable.
  */
 
-1 VERSIONINFO
-FILEVERSION 1,0,0,0
-PRODUCTVERSION 1,0,0,0
-FILEFLAGSMASK 0x3fL
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
- FILEFLAGS VS_FF_DEBUG
+ FILEFLAGS 0x1L
 #else
  FILEFLAGS 0x0L
 #endif
-FILEOS VOS__WINDOWS32
-FILETYPE VFT_APP
-FILESUBTYPE VFT2_UNKNOWN
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
@@ -31,6 +31,7 @@ BEGIN
             VALUE "OriginalFilename", "dummy.exe\0"
             VALUE "ProductName", "Fake Analysis Suite\0"
             VALUE "ProductVersion", "1.0.0.0\0"
+	        VALUE "DecoyIdentifier", "0193b58d-cf59-703c-afda-a8c62c43f6b0\0" //UUID for identification
         END
     END
 
