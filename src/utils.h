@@ -25,6 +25,14 @@ void qprintf(const char *fmt, ...);
 BOOL fileExists(const char *filename);
 
 /**
+ * @brief Checks if a file has a specific version information.
+ *
+ * @param exePath The path to the executable.
+ * @return TRUE if the file has the DecoyIdentifier, FALSE otherwise.
+ */
+BOOL hasDecoyIdentifier(const char *exePath);
+
+/**
  * @brief Kills all running instances of processes with a given name.
  *
  * @param pname Process name (e.g. "procmon.exe")
