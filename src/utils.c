@@ -42,6 +42,38 @@ BOOL fileExists(const char *filename)
 }
 
 /**
+ * @brief Checks if a file has a specific version information.
+ *
+ * @param exePath The path to the executable.
+ * @return TRUE if the file has the DecoyIdentifier, FALSE otherwise.
+ */
+BOOL hasDecoyIdentifier(const char *exePath)
+{
+    DWORD verHandle = 0;
+    DWORD verSize = GetFileVersionInfoSizeA(exePath, &verHandle);
+    if (verSize > 0)
+    {
+        LPVOID verData = malloc(verSize);
+        if (GetFileVersionInfoA(exePath, verHandle, verSize, verData))
+        {
+            LPVOID lpBuffer = NULL;
+            UINT size = 0;
+            if (VerQueryValueA(verData, "\\StringFileInfo\\040904b0\\DecoyIdentifier", &lpBuffer, &size))
+            {
+                if (lpBuffer && strcmp((char *)lpBuffer, "0193b58d-cf59-703c-afda-a8c62c43f6b0") == 0)
+                {
+                    free(verData);
+                    return TRUE;
+                }
+            }
+        }
+        free(verData);
+        return FALSE;
+    }
+    return FALSE;
+}
+
+/**
  * @brief Kills all processes by a given name.
  *
  * Uses a snapshot of system processes and compares against pname.
@@ -60,39 +92,44 @@ void killProcessByName(const char *pname)
     PROCESSENTRY32 pe;
     pe.dwSize = sizeof(pe);
 
-    if (!Process32First(hSnapshot, &pe))
+    if (Process32First(hSnapshot, &pe))
     {
-        qprintf("[-] Failed to retrieve first process. Error: %lu\n", GetLastError());
-        CloseHandle(hSnapshot);
-        return;
-    }
-
-    do
-    {
-        // Example of bounds checking for strings
-        if (strlen(pname) < MAX_PATH)
+        do
         {
-            // Safe usage of pname
-            if (_strnicmp(pe.szExeFile, pname, MAX_PATH) == 0)
+            if (_stricmp(pe.szExeFile, pname) == 0)
             {
-                HANDLE hProc = OpenProcess(PROCESS_TERMINATE, FALSE, pe.th32ProcessID);
-                if (hProc)
+                HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | PROCESS_TERMINATE, FALSE, pe.th32ProcessID);
+                if (hProcess)
                 {
-                    if (!TerminateProcess(hProc, 0))
+                    char exePath[MAX_PATH];
+                    if (GetModuleFileNameExA(hProcess, NULL, exePath, MAX_PATH))
                     {
-                        qprintf("[-] Failed to terminate %s (PID: %lu). Error: %lu\n", pname, pe.th32ProcessID, GetLastError());
+                        if (hasDecoyIdentifier(exePath))
+                        {
+                            if (TerminateProcess(hProcess, 0))
+                            {
+                                WaitForSingleObject(hProcess, 2000);
+                                qprintf("[+] Terminated %s (PID: %lu)\n", pname, pe.th32ProcessID);
+                            }
+                            else
+                            {
+                                qprintf("[-] Failed to terminate %s (PID: %lu). Error: %lu\n", pname, pe.th32ProcessID, GetLastError());
+                            }
+                        }
                     }
-                    WaitForSingleObject(hProc, 2000);
-                    CloseHandle(hProc);
-                    qprintf("[+] %s (PID: %lu) has been terminated\n", pname, pe.th32ProcessID);
+                    else
+                    {
+                        qprintf("[-] GetModuleFileNameExA failed for PID: %lu. Error: %lu\n", pe.th32ProcessID, GetLastError());
+                    }
+                    CloseHandle(hProcess);
                 }
                 else
                 {
                     qprintf("[-] Cannot open process %s (PID: %lu). Error: %lu\n", pname, pe.th32ProcessID, GetLastError());
                 }
             }
-        }
-    } while (Process32Next(hSnapshot, &pe));
+        } while (Process32Next(hSnapshot, &pe));
+    }
 
     CloseHandle(hSnapshot);
 }
