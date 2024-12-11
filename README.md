@@ -34,6 +34,8 @@ cmake .. -DCMAKE_BUILD_TYPE=Release
 cmake --build . --config Release
 ```
 
+Or run the provided `build.bat` script to build the project.
+
 Or download the latest pre-built binaries from the [Releases](https://github.com/EvickaStudio/decoy/releases/latest) page.
 
 ## Usage
