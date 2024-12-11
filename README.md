@@ -10,6 +10,16 @@ Decoy is a lightweight tool that launches multiple dummy processes named after c
 - Non-interactive modes via command-line arguments
 - Useful for testing software/malware behavior in an environment that appears monitored or "add another layer of security" (not a substitute for proper security measures)
 
+## Safety
+
+Starting from the newer versions (not in v0.1.0), the dummy process includes an extra entry in the [dummy.rc](resources/dummy.rc) resource file:
+
+```plaintext
+VALUE "DecoyIdentifier", "0193b58d-cf59-703c-afda-a8c62c43f6b0\0"
+```
+
+This `DecoyIdentifier` with a unique UUID allows the manager to distinguish between the decoy processes it started and legitimate processes with the same name. Before terminating any process, the manager checks for this identifier in the process's version information. If the identifier matches, it proceeds to terminate the process; otherwise, it skips it to avoid interfering with legitimate applications.
+
 ## Example Process Names
 
 Decoy includes common tool names such as:
