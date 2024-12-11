@@ -3,12 +3,6 @@ project(decoy C)
 
 set(CMAKE_C_STANDARD 11)
 
-if(MSVC)
-    # Optimize for size and enable link-time code generation:
-    set(CMAKE_C_FLAGS_RELEASE "/O1 /GL /Gy /DNDEBUG")
-    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "/LTCG /OPT:REF /OPT:ICF")
-endif()
-
 # Specify where to find headers and resources
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src")
 
@@ -26,6 +20,15 @@ add_executable(decoy-manager
     src/args.c
     resources/manager.rc
 )
+
+if(MSVC)
+    # Optimize for size and enable link-time code generation:
+    set(CMAKE_C_FLAGS_RELEASE "/O1 /GL /Gy /DNDEBUG")
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "/LTCG /OPT:REF /OPT:ICF")
+    
+    # Link against Version.lib and Psapi.lib
+    target_link_libraries(decoy-manager PRIVATE Version.lib Psapi.lib)
+endif()
 
 # Ensure the executables end up in the same directory
 set_target_properties(dummy decoy-manager PROPERTIES
