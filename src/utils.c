@@ -68,6 +68,7 @@ BOOL hasDecoyIdentifier(const char *exePath)
             }
         }
         free(verData);
+        return FALSE;
     }
     return FALSE;
 }
@@ -115,6 +116,10 @@ void killProcessByName(const char *pname)
                                 qprintf("[-] Failed to terminate %s (PID: %lu). Error: %lu\n", pname, pe.th32ProcessID, GetLastError());
                             }
                         }
+                    }
+                    else
+                    {
+                        qprintf("[-] GetModuleFileNameExA failed for PID: %lu. Error: %lu\n", pe.th32ProcessID, GetLastError());
                     }
                     CloseHandle(hProcess);
                 }
