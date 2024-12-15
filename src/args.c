@@ -26,8 +26,11 @@ void parseArguments(int argc, char *argv[], BOOL *startImmediate, BOOL *terminat
     {
         for (int i = 1; i < argc; i++)
         {
-            if (argv[i] != NULL && strlen(argv[i]) > 0)
+            if (argv[i] != NULL)
             {
+                if (strlen(argv[i]) == 0)
+                    continue;
+
                 if ((strcmp(argv[i], "-S") == 0) || (strcmp(argv[i], "-s") == 0))
                 {
                     *startImmediate = TRUE;
@@ -41,6 +44,14 @@ void parseArguments(int argc, char *argv[], BOOL *startImmediate, BOOL *terminat
                     setQuietMode(TRUE);
                     *startImmediate = TRUE;
                 }
+                else
+                {
+                    qprintf("[-] Warning: Unrecognized argument '%s'\n", argv[i]);
+                }
+            }
+            else
+            {
+                qprintf("[-] Warning: NULL argument encountered.\n");
             }
         }
     }

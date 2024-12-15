@@ -184,8 +184,20 @@ void startAllProcesses(void)
     {
         if (!processes[i].running)
         {
+            // Validate process name to prevent path traversal
+            if (strchr(processNames[i], '\\') != NULL || strchr(processNames[i], '/') != NULL)
+            {
+                qprintf("[-] Invalid process name: %s\n", processNames[i]);
+                continue;
+            }
+
             char processPath[MAX_PATH];
-            snprintf(processPath, MAX_PATH, "processes\\%s", processNames[i]);
+            int ret = snprintf(processPath, sizeof(processPath), "processes\\%s", processNames[i]);
+            if (ret < 0 || ret >= sizeof(processPath))
+            {
+                qprintf("[-] Process path is too long for %s\n", processNames[i]);
+                continue;
+            }
 
             STARTUPINFOA si;
             ZeroMemory(&si, sizeof(si));

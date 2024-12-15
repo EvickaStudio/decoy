@@ -51,26 +51,36 @@ BOOL hasDecoyIdentifier(const char *exePath)
 {
     DWORD verHandle = 0;
     DWORD verSize = GetFileVersionInfoSizeA(exePath, &verHandle);
-    if (verSize > 0)
+    if (verSize == 0)
+        return FALSE;
+
+    LPVOID verData = malloc(verSize);
+    if (verData == NULL)
     {
-        LPVOID verData = malloc(verSize);
-        if (GetFileVersionInfoA(exePath, verHandle, verSize, verData))
-        {
-            LPVOID lpBuffer = NULL;
-            UINT size = 0;
-            if (VerQueryValueA(verData, "\\StringFileInfo\\040904b0\\DecoyIdentifier", &lpBuffer, &size))
-            {
-                if (lpBuffer && strcmp((char *)lpBuffer, "0193b58d-cf59-703c-afda-a8c62c43f6b0") == 0)
-                {
-                    free(verData);
-                    return TRUE;
-                }
-            }
-        }
-        free(verData);
+        qprintf("[-] Memory allocation failed in hasDecoyIdentifier.\n");
         return FALSE;
     }
-    return FALSE;
+
+    BOOL result = FALSE;
+    if (GetFileVersionInfoA(exePath, verHandle, verSize, verData))
+    {
+        LPVOID lpBuffer = NULL;
+        UINT size = 0;
+        if (VerQueryValueA(verData, "\\StringFileInfo\\040904b0\\DecoyIdentifier", &lpBuffer, &size))
+        {
+            if (lpBuffer && strcmp((char *)lpBuffer, "0193b58d-cf59-703c-afda-a8c62c43f6b0") == 0)
+            {
+                result = TRUE;
+            }
+        }
+    }
+    else
+    {
+        qprintf("[-] GetFileVersionInfoA failed for %s. Error: %lu\n", exePath, GetLastError());
+    }
+
+    free(verData);
+    return result;
 }
 
 /**
