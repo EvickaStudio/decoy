@@ -3,6 +3,7 @@
 #include <io.h>
 #include "process_control.h"
 #include "utils.h"
+#include "logger.h"
 
 // Global storage of process info
 static FakeProcess processes[64];
@@ -146,7 +147,8 @@ void ensureProcessesDirectoryAndCopies(void)
         DWORD err = GetLastError();
         if (err != ERROR_ALREADY_EXISTS)
         {
-            qprintf("[-] Failed to create processes directory. Error: %lu\n", err);
+            // qprintf("[-] Failed to create processes directory. Error: %lu\n", err);
+            WARN("Failed to create processes directory. Error: %lu", err);
             return;
         }
     }
@@ -161,11 +163,13 @@ void ensureProcessesDirectoryAndCopies(void)
             if (!CopyFileA("dummy.exe", destPath, FALSE))
             {
                 DWORD err = GetLastError();
-                qprintf("[-] Failed to copy dummy.exe to %s. Error: %lu\n", destPath, err);
+                // qprintf("[-] Failed to copy dummy.exe to %s. Error: %lu\n", destPath, err);
+                WARN("Failed to copy dummy.exe to %s. Error: %lu", destPath, err);
             }
             else
             {
-                qprintf("[+] Copied dummy.exe to %s\n", destPath);
+                // qprintf("[+] Copied dummy.exe to %s\n", destPath);
+                OKAY("Copied dummy.exe to %s", destPath);
             }
         }
     }
@@ -195,17 +199,17 @@ void startAllProcesses(void)
             if (!CreateProcessA(processPath, NULL, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &processes[i].pi))
             {
                 DWORD err = GetLastError();
-                qprintf("[-] Failed to start %s. Error: %lu\n", processNames[i], err);
+                WARN("Failed to start %s. Error: %lu", processNames[i], err);
             }
             else
             {
                 processes[i].running = TRUE;
-                qprintf("[+] Started %s (PID: %lu)\n", processNames[i], processes[i].pi.dwProcessId);
+                OKAY("Started %s (PID: %lu)", processNames[i], processes[i].pi.dwProcessId);
             }
         }
         else
         {
-            qprintf("[!] %s already running.\n", processNames[i]);
+            WARN("%s already running.", processNames[i]);
         }
     }
     fflush(stdout);
@@ -231,11 +235,11 @@ void terminateAllProcesses(void)
                 CloseHandle(processes[i].pi.hProcess);
                 CloseHandle(processes[i].pi.hThread);
                 processes[i].running = FALSE;
-                qprintf("[+] Terminated %s\n", processNames[i]);
+                OKAY("Terminated %s", processNames[i]);
             }
             else
             {
-                qprintf("[-] Failed to terminate %s. Error: %lu\n", processNames[i], GetLastError());
+                WARN("Failed to terminate %s. Error: %lu", processNames[i], GetLastError());
             }
         }
         else
@@ -291,7 +295,7 @@ void interactiveMode(void)
             running = FALSE;
             break;
         default:
-            qprintf("Unknown command. Please try again.\n");
+            WARN("Unknown command. Please try again.");
             break;
         }
 
@@ -302,5 +306,5 @@ void interactiveMode(void)
         }
     }
 
-    qprintf("\nExiting Decoy Manager. Goodbye!\n");
+    INFO("Exiting Decoy Manager. Goodbye!");
 }

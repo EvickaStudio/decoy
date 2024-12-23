@@ -2,6 +2,7 @@
 #include <string.h>
 #include "args.h"
 #include "utils.h"
+#include "logger.h"
 
 /**
  * @file args.c
@@ -60,7 +61,7 @@ void enableAnsiIfPossible(void)
             dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
             if (!SetConsoleMode(hOut, dwMode))
             {
-                qprintf("[-] Failed to enable ANSI support. Error: %lu\n", GetLastError());
+                WARN("Failed to enable ANSI support. Error: %lu", GetLastError());
             }
         }
     }

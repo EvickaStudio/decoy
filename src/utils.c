@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <tlhelp32.h>
 #include "utils.h"
+#include "logger.h"
 
 static BOOL quietMode = FALSE;
 
@@ -85,7 +86,7 @@ void killProcessByName(const char *pname)
     HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if (hSnapshot == INVALID_HANDLE_VALUE)
     {
-        qprintf("[-] Failed to create snapshot. Error: %lu\n", GetLastError());
+        WARN("Failed to create snapshot. Error: %lu", GetLastError());
         return;
     }
 
@@ -109,23 +110,23 @@ void killProcessByName(const char *pname)
                             if (TerminateProcess(hProcess, 0))
                             {
                                 WaitForSingleObject(hProcess, 2000);
-                                qprintf("[+] Terminated %s (PID: %lu)\n", pname, pe.th32ProcessID);
+                                OKAY("Terminated %s (PID: %lu)", pname, pe.th32ProcessID);
                             }
                             else
                             {
-                                qprintf("[-] Failed to terminate %s (PID: %lu). Error: %lu\n", pname, pe.th32ProcessID, GetLastError());
+                                WARN("Failed to terminate %s (PID: %lu). Error: %lu", pname, pe.th32ProcessID, GetLastError());
                             }
                         }
                     }
                     else
                     {
-                        qprintf("[-] GetModuleFileNameExA failed for PID: %lu. Error: %lu\n", pe.th32ProcessID, GetLastError());
+                        WARN("GetModuleFileNameExA failed for PID: %lu. Error: %lu", pe.th32ProcessID, GetLastError());
                     }
                     CloseHandle(hProcess);
                 }
                 else
                 {
-                    qprintf("[-] Cannot open process %s (PID: %lu). Error: %lu\n", pname, pe.th32ProcessID, GetLastError());
+                    WARN("Cannot open process %s (PID: %lu). Error: %lu", pname, pe.th32ProcessID, GetLastError());
                 }
             }
         } while (Process32Next(hSnapshot, &pe));
