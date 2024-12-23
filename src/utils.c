@@ -58,7 +58,7 @@ BOOL hasDecoyIdentifier(const char *exePath)
     LPVOID verData = malloc(verSize);
     if (verData == NULL)
     {
-        qprintf("[-] Memory allocation failed in hasDecoyIdentifier.\n");
+        WARN("Memory allocation failed in hasDecoyIdentifier.");
         return FALSE;
     }
 
@@ -77,7 +77,7 @@ BOOL hasDecoyIdentifier(const char *exePath)
     }
     else
     {
-        qprintf("[-] GetFileVersionInfoA failed for %s. Error: %lu\n", exePath, GetLastError());
+        WARN("GetFileVersionInfoA failed for %s. Error: %lu", exePath, GetLastError());
     }
 
     free(verData);

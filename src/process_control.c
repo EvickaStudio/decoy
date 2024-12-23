@@ -147,7 +147,6 @@ void ensureProcessesDirectoryAndCopies(void)
         DWORD err = GetLastError();
         if (err != ERROR_ALREADY_EXISTS)
         {
-            // qprintf("[-] Failed to create processes directory. Error: %lu\n", err);
             WARN("Failed to create processes directory. Error: %lu", err);
             return;
         }
@@ -163,12 +162,10 @@ void ensureProcessesDirectoryAndCopies(void)
             if (!CopyFileA("dummy.exe", destPath, FALSE))
             {
                 DWORD err = GetLastError();
-                // qprintf("[-] Failed to copy dummy.exe to %s. Error: %lu\n", destPath, err);
                 WARN("Failed to copy dummy.exe to %s. Error: %lu", destPath, err);
             }
             else
             {
-                // qprintf("[+] Copied dummy.exe to %s\n", destPath);
                 OKAY("Copied dummy.exe to %s", destPath);
             }
         }
@@ -191,7 +188,7 @@ void startAllProcesses(void)
             // Validate process name to prevent path traversal
             if (strchr(processNames[i], '\\') != NULL || strchr(processNames[i], '/') != NULL)
             {
-                qprintf("[-] Invalid process name: %s\n", processNames[i]);
+                WARN("Invalid process name: %s", processNames[i]);
                 continue;
             }
 
@@ -199,7 +196,7 @@ void startAllProcesses(void)
             int ret = snprintf(processPath, sizeof(processPath), "processes\\%s", processNames[i]);
             if (ret < 0 || ret >= sizeof(processPath))
             {
-                qprintf("[-] Process path is too long for %s\n", processNames[i]);
+                WARN("Process path is too long for %s", processNames[i]);
                 continue;
             }
 

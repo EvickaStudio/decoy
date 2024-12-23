@@ -47,12 +47,12 @@ void parseArguments(int argc, char *argv[], BOOL *startImmediate, BOOL *terminat
                 }
                 else
                 {
-                    qprintf("[-] Warning: Unrecognized argument '%s'\n", argv[i]);
+                    WARN("Unrecognized argument '%s'", argv[i]);
                 }
             }
             else
             {
-                qprintf("[-] Warning: NULL argument encountered.\n");
+                WARN("Warning: NULL argument encountered.");
             }
         }
     }

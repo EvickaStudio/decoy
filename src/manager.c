@@ -40,7 +40,6 @@ int main(int argc, char *argv[])
     if (startImmediate && !terminateImmediate)
     {
         printBanner();
-        // qprintf("[*] Starting all processes as requested by command-line argument.\n");
         INFO("Starting all processes as requested by command-line argument.");
         ensureProcessesDirectoryAndCopies();
         startAllProcesses();
@@ -51,7 +50,6 @@ int main(int argc, char *argv[])
     if (terminateImmediate)
     {
         printBanner();
-        // qprintf("[*] Terminating all processes as requested by command-line argument.\n");
         INFO("Terminating all processes as requested by command-line argument.");
         terminateAllProcesses();
         return 0;
