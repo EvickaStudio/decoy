@@ -1,41 +1,38 @@
 # Decoy
 
-Decoy is a lightweight tool that launches multiple dummy processes named after common analysis and debugging tools. By imitating known tools, Decoy aims to deter simple malware checks that look for these processes before executing malicious code. In other words, it acts as a "decoy" environment, making malware believe it is under scrutiny by analysts or monitoring tools. - Chatty ^^
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+A lightweight Windows utility that creates dummy processes mimicking common analysis and debugging tools. Decoy helps test software behavior in monitored environments by simulating the presence of analysis tools.
+
+## Overview
+
+Decoy creates harmless process imitations of well-known analysis and debugging tools. This can be useful for:
+- Testing software behavior in environments that appear to be monitored
+- Adding an extra layer of deterrence against malware that checks for analysis tools
+- Simulating a monitored environment for testing purposes
+
+> **Note**: Decoy is not a substitute for proper security measures. It should be used as part of a broader security strategy.
 
 ## Features
 
-- Launches dummy processes to mimic well-known analysis/debugging programs
-- Uses minimal resources for each dummy process (no console for the dummy's, ~0.3MB memory each)
-- Interactive mode for starting, terminating, and restarting all processes
-- Non-interactive modes via command-line arguments
-- Useful for testing software/malware behavior in an environment that appears monitored or "add another layer of security" (not a substitute for proper security measures)
+- **Lightweight Process Simulation**
+  - Creates minimal resource footprint (~0.3MB per process)
+  - No console windows for dummy processes
+  - Safe process management with unique identifiers
 
-## Safety
+- **Process Management**
+  - Interactive and non-interactive operation modes
+  - Start, stop, and restart capabilities
+  - Safe termination with process verification
 
-Starting from the newer versions (not in v0.1.0), the dummy process includes an extra entry in the [dummy.rc](resources/dummy.rc) resource file:
+- **Safety Mechanisms**
+  - Unique DecoyIdentifier UUID for each process
+  - Version information verification before termination
+  - Protection against accidental termination of legitimate processes
 
-```plaintext
-VALUE "DecoyIdentifier", "0193b58d-cf59-703c-afda-a8c62c43f6b0\0"
-```
+## Installation
 
-This `DecoyIdentifier` with a unique UUID allows the manager to distinguish between the decoy processes it started and legitimate processes with the same name. Before terminating any process, the manager checks for this identifier in the process's version information. If the identifier matches, it proceeds to terminate the process; otherwise, it skips it to avoid interfering with legitimate applications.
-
-## Example Process Names
-
-Decoy includes common tool names such as:
-
-- `ProcessHacker.exe`
-- `procmon.exe`
-- `Wireshark.exe`
-- `IDA.exe`
-- `OllyDbg.exe`
-- ...
-
-*(Additional names are included in the source code.)*
-
-## Build
-
-To build it yourself with CMake, run the following commands:
+### Building from Source
 
 ```bash
 mkdir build
@@ -44,28 +41,70 @@ cmake .. -DCMAKE_BUILD_TYPE=Release
 cmake --build . --config Release
 ```
 
-Or run the provided `build.bat` script to build the project.
-
-Or download the latest pre-built binaries from the [Releases](https://github.com/EvickaStudio/decoy/releases/latest) page.
+Alternatively:
+- Use the provided `build.bat` script
+- Download pre-built binaries from the [Releases](https://github.com/EvickaStudio/decoy/releases/latest) page
 
 ## Usage
 
-**Interactive Mode:**  
-Run `decoy-manager` without arguments to open the interactive menu:
+### Interactive Mode
 
-- Press `S` to start all decoy processes
-- Press `T` to terminate all decoy processes
-- Press `R` to restart all decoy processes
-- Press `Q` to quit and terminate all decoy processes before exiting
+Run `decoy-manager` without arguments to access the interactive menu:
 
-**Non-Interactive Modes:**
+| Key | Action |
+|-----|--------|
+| `S` | Start all decoy processes |
+| `T` | Terminate all processes |
+| `R` | Restart all processes |
+| `Q` | Quit and clean up |
 
-- `-S` or `-s`: Start all processes and then exit
-- `-T` or `-t`: Terminate all running processes and then exit (when closing the program not properly)
-- `-Q` or `-q`: Quiet mode, no terminal output; just start all processes and exit
+### Command-Line Options
 
-These command-line options are particularly useful if you want to integrate Decoy into scripts or automation workflows without user interaction.
+```bash
+decoy-manager [-S|-T|-Q]
+```
 
-## Disclaimer
+| Option | Description |
+|--------|-------------|
+| `-S, -s` | Start all processes and exit |
+| `-T, -t` | Terminate all processes and exit |
+| `-Q, -q` | Quiet mode: start processes without output |
 
-**Note:** Some legitimate programs or games (e.g., Battlefield 2042 with procmon.exe) may use anti-cheat mechanisms that detect and blacklist certain processes. Running Decoy might cause these applications to refuse to start or function improperly until specific processes are stopped. Use Decoy with caution to ensure it does not interfere with your legitimate software.
+### Simulated Processes
+
+Decoy creates dummy processes for common analysis tools including:
+- ProcessHacker.exe
+- procmon.exe
+- Wireshark.exe
+- IDA.exe
+- OllyDbg.exe
+- And more...
+
+## Technical Details
+
+### Process Safety
+
+Each dummy process includes a unique identifier in its version information:
+```plaintext
+VALUE "DecoyIdentifier", "0193b58d-cf59-703c-afda-a8c62c43f6b0"
+```
+
+This identifier ensures that:
+1. Only Decoy-created processes can be terminated by the manager
+2. Legitimate tools with matching names remain unaffected
+3. Process management operations are safe and targeted
+
+## Compatibility Warning
+
+Some applications, particularly games with anti-cheat systems, may detect and react to Decoy's processes. For example:
+- Certain games may refuse to launch
+- Anti-cheat systems might flag the presence of analysis tool names
+- Some applications may require specific processes to be stopped
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit pull requests or create issues for bugs and feature requests.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
