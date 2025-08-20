@@ -61,7 +61,7 @@ Run `decoy-manager` without arguments to access the interactive menu:
 ### Command-Line Options
 
 ```bash
-decoy-manager [-S|-T|-Q]
+decoy-manager [-S|-T|-Q|-h]
 ```
 
 | Option | Description |
@@ -69,6 +69,7 @@ decoy-manager [-S|-T|-Q]
 | `-S, -s` | Start all processes and exit |
 | `-T, -t` | Terminate all processes and exit |
 | `-Q, -q` | Quiet mode: start processes without output |
+| `-h, --help` | Show help information |
 
 ### Simulated Processes
 
@@ -103,7 +104,9 @@ Some applications, particularly games with anti-cheat systems, may detect and re
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit pull requests or create issues for bugs and feature requests.
+Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting pull requests.
+
+For information about changes and releases, see the [Changelog](CHANGELOG.md).
 
 ## License
 
