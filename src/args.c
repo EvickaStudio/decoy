@@ -3,6 +3,8 @@
 #include "args.h"
 #include "utils.h"
 #include "logger.h"
+#include "config.h"
+#include "logger.h"
 
 /**
  * @file args.c
@@ -23,12 +25,20 @@
  */
 void parseArguments(int argc, char *argv[], BOOL *startImmediate, BOOL *terminateImmediate)
 {
+    // Validate input parameters
+    if (startImmediate == NULL || terminateImmediate == NULL)
+    {
+        WARN("Invalid parameters passed to parseArguments");
+        return;
+    }
+
     if (argc > 1)
     {
         for (int i = 1; i < argc; i++)
         {
             if (argv[i] != NULL)
             {
+                // Skip empty arguments
                 if (strlen(argv[i]) == 0)
                     continue;
 
@@ -45,9 +55,15 @@ void parseArguments(int argc, char *argv[], BOOL *startImmediate, BOOL *terminat
                     setQuietMode(TRUE);
                     *startImmediate = TRUE;
                 }
+                else if ((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0) || 
+                         (strcmp(argv[i], "-?") == 0) || (strcmp(argv[i], "/?") == 0))
+                {
+                    printUsage();
+                    exit(0);
+                }
                 else
                 {
-                    WARN("Unrecognized argument '%s'", argv[i]);
+                    WARN("Unrecognized argument '%s'. Use -h for help.", argv[i]);
                 }
             }
             else
@@ -56,6 +72,28 @@ void parseArguments(int argc, char *argv[], BOOL *startImmediate, BOOL *terminat
             }
         }
     }
+}
+
+/**
+ * @brief Prints usage information and available command-line options.
+ */
+void printUsage(void)
+{
+    printf("Decoy Manager v%s\n", DECOY_VERSION_STRING);
+    printf("A lightweight Windows utility that creates dummy processes mimicking analysis tools.\n\n");
+    printf("Usage: decoy-manager [OPTIONS]\n\n");
+    printf("Options:\n");
+    printf("  -S, -s    Start all decoy processes and exit\n");
+    printf("  -T, -t    Terminate all decoy processes and exit\n");
+    printf("  -Q, -q    Quiet mode: start processes without output\n");
+    printf("  -h, --help, -?, /?    Show this help message\n\n");
+    printf("When run without arguments, enters interactive mode.\n\n");
+    printf("Interactive Commands:\n");
+    printf("  [S] Start all processes\n");
+    printf("  [T] Terminate all processes\n");
+    printf("  [R] Restart all processes\n");
+    printf("  [Q] Quit\n\n");
+    printf("For more information, visit: https://github.com/EvickaStudio/decoy\n");
 }
 
 /**

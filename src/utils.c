@@ -5,6 +5,7 @@
 #include <tlhelp32.h>
 #include "utils.h"
 #include "logger.h"
+#include "config.h"
 
 static BOOL quietMode = FALSE;
 
@@ -69,7 +70,7 @@ BOOL hasDecoyIdentifier(const char *exePath)
         UINT size = 0;
         if (VerQueryValueA(verData, "\\StringFileInfo\\040904b0\\DecoyIdentifier", &lpBuffer, &size))
         {
-            if (lpBuffer && strcmp((char *)lpBuffer, "0193b58d-cf59-703c-afda-a8c62c43f6b0") == 0)
+            if (lpBuffer && strcmp((char *)lpBuffer, DECOY_IDENTIFIER_UUID) == 0)
             {
                 result = TRUE;
             }
@@ -119,7 +120,7 @@ void killProcessByName(const char *pname)
                         {
                             if (TerminateProcess(hProcess, 0))
                             {
-                                WaitForSingleObject(hProcess, 2000);
+                                WaitForSingleObject(hProcess, PROCESS_WAIT_TIMEOUT);
                                 OKAY("Terminated %s (PID: %lu)", pname, pe.th32ProcessID);
                             }
                             else

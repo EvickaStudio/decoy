@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "banner.h"
 #include "utils.h"
+#include "config.h"
 
 /**
  * @file banner.c
@@ -20,7 +21,7 @@ void printBanner(void)
     qprintf("/ _  / -_) __/ _ \\/ // /\n");
     qprintf("\\_,_/\\__/\\__/\\___/\\_, / ");
     qprintf("\x1b[0m");
-    qprintf("v0.1.0\n");
+    qprintf("v%s\n", DECOY_VERSION_STRING);
     qprintf("\x1b[35m");
     qprintf("                 /___/  \n");
     qprintf("\x1b[0m\n");

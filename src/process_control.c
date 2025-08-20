@@ -4,9 +4,13 @@
 #include "process_control.h"
 #include "utils.h"
 #include "logger.h"
+#include "config.h"
+
+// Constants
+// MAX_PROCESSES now defined in config.h
 
 // Global storage of process info
-static FakeProcess processes[64];
+static FakeProcess processes[MAX_PROCESSES];
 static BOOL processesInitialized = FALSE;
 static BOOL quietMode = FALSE; // Local tracking, actual quietMode is in utils if needed
 
@@ -81,12 +85,25 @@ static const int processCount = (int)(sizeof(processNames) / sizeof(processNames
 
 /**
  * @brief Internal helper to initialize the processes array once.
+ * 
+ * This function ensures the process array is properly initialized with default values.
+ * It includes a safety check to prevent buffer overflow if the process count exceeds
+ * the maximum allowed processes.
+ * 
+ * @note This function is called automatically by public API functions.
  */
 static void initializeProcessesIfNeeded(void)
 {
     if (!processesInitialized)
     {
-        for (int i = 0; i < processCount; i++)
+        // Safety check: ensure process count doesn't exceed array bounds
+        if (processCount > MAX_PROCESSES)
+        {
+            WARN("Process count (%d) exceeds maximum allowed (%d). Behavior undefined.", 
+                 processCount, MAX_PROCESSES);
+        }
+
+        for (int i = 0; i < processCount && i < MAX_PROCESSES; i++)
         {
             processes[i].running = FALSE;
             ZeroMemory(&processes[i].pi, sizeof(processes[i].pi));
@@ -142,7 +159,7 @@ void ensureProcessesDirectoryAndCopies(void)
 {
     initializeProcessesIfNeeded();
 
-    if (!CreateDirectoryA("processes", NULL))
+    if (!CreateDirectoryA(PROCESSES_DIR, NULL))
     {
         DWORD err = GetLastError();
         if (err != ERROR_ALREADY_EXISTS)
@@ -155,11 +172,16 @@ void ensureProcessesDirectoryAndCopies(void)
     for (int i = 0; i < processCount; i++)
     {
         char destPath[MAX_PATH];
-        snprintf(destPath, MAX_PATH, "processes\\%s", processNames[i]);
+        int ret = snprintf(destPath, MAX_PATH, "%s\\%s", PROCESSES_DIR, processNames[i]);
+        if (ret < 0 || ret >= MAX_PATH)
+        {
+            WARN("Destination path too long for %s", processNames[i]);
+            continue;
+        }
 
         if (!fileExists(destPath))
         {
-            if (!CopyFileA("dummy.exe", destPath, FALSE))
+            if (!CopyFileA(DUMMY_EXECUTABLE, destPath, FALSE))
             {
                 DWORD err = GetLastError();
                 WARN("Failed to copy dummy.exe to %s. Error: %lu", destPath, err);
@@ -193,7 +215,7 @@ void startAllProcesses(void)
             }
 
             char processPath[MAX_PATH];
-            int ret = snprintf(processPath, sizeof(processPath), "processes\\%s", processNames[i]);
+            int ret = snprintf(processPath, sizeof(processPath), "%s\\%s", PROCESSES_DIR, processNames[i]);
             if (ret < 0 || ret >= sizeof(processPath))
             {
                 WARN("Process path is too long for %s", processNames[i]);
@@ -240,7 +262,7 @@ void terminateAllProcesses(void)
         {
             if (TerminateProcess(processes[i].pi.hProcess, 0))
             {
-                WaitForSingleObject(processes[i].pi.hProcess, 2000);
+                WaitForSingleObject(processes[i].pi.hProcess, PROCESS_WAIT_TIMEOUT);
                 CloseHandle(processes[i].pi.hProcess);
                 CloseHandle(processes[i].pi.hThread);
                 processes[i].running = FALSE;

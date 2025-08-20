@@ -19,6 +19,11 @@
 void parseArguments(int argc, char *argv[], BOOL *startImmediate, BOOL *terminateImmediate);
 
 /**
+ * @brief Prints usage information and available command-line options.
+ */
+void printUsage(void);
+
+/**
  * @brief Enables ANSI escape sequences in the Windows console if possible.
  */
 void enableAnsiIfPossible(void);
